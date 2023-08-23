@@ -51,11 +51,11 @@ public class GoodsController {
     //@ResponseBody
     public String toList(Model model, User user,HttpServletRequest request, HttpServletResponse response){
         // Redis中获取页面，如果不为空，则直接返回页面
-        ValueOperations valueOperations = redisTemplate.opsForValue();
-        String html = (String) valueOperations.get("goodsList");
-        if(!StringUtils.isEmpty(html)){
-            return html;
-        }
+        //ValueOperations valueOperations = redisTemplate.opsForValue();
+        //String html = (String) valueOperations.get("goodsList");
+        //if(!StringUtils.isEmpty(html)){
+        //    return html;
+        //}
 
         model.addAttribute("user", user);
         model.addAttribute("goodsList", goodsService.findGoodVo());
