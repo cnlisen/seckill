@@ -22,6 +22,20 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 public interface IUserService extends IService<User> {
     RespBean doLogin(LoginVo loginVo, HttpServletRequest request, HttpServletResponse response);
-    // 根据 cookie 获取用户
+    /**
+     * @description: 根据cookie获取用户
+     *
+     * @param:
+     * @return:
+     */
     User getUserByCookie(String userTicket, HttpServletRequest request, HttpServletResponse response);
+
+    /**
+     * @description: 用户更新密码
+     *
+     * @param:
+     * @return:
+     */
+    RespBean updatePassword(String userTicket, String password, HttpServletRequest request, HttpServletResponse response);
+
 }

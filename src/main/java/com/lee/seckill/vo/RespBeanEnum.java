@@ -19,6 +19,8 @@ public enum RespBeanEnum {
     // 登录模块 5002xx
     LOGIN_ERROR(500210, "用户名或密码不正确"),
     MOBILE_ERROR(500211, "手机号码格式不正确"),
+    MOBLIE_NOT_EXIST(500213, "手机号码不存在"),
+    PASSWORD_UPDATE_FAIL(500214, "更新密码失败"),
     //
     BIND_ERROR(500212, "参数校验异常"),
     // 秒杀模块 5005xx
