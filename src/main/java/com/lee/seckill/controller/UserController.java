@@ -38,58 +38,55 @@ public class UserController {
         return RespBean.success(user);
     }
 
-    /**
-     * @description: 测试发送RabbitMQ消息
-     *
-     * @param:
-     * @return:
-     */
-    @RequestMapping("/mq")
-    @ResponseBody
-    public void mq(){
-        mqSender.sendF("Hello");
-    }
-
-    @RequestMapping("/mq/fanout")
-    @ResponseBody
-    public void mqF(){
-        mqSender.sendF("Hello");
-    }
-
-    @RequestMapping("/mq/direct01")
-    @ResponseBody
-    public void mqD01(){
-        mqSender.sendD01("Hello,Red");
-    }
-
-    @RequestMapping("/mq/direct02")
-    @ResponseBody
-    public void mqD02(){
-        mqSender.sendD02("Hello,Green");
-    }
-
-    @RequestMapping("/mq/topic01")
-    @ResponseBody
-    public void mqT01(){
-        mqSender.sendT01("Hello,Red");
-    }
-    @RequestMapping("/mq/topic02")
-    @ResponseBody
-    public void mqT02(){
-        mqSender.sendT02("Hello,Green");
-    }
-
-    @RequestMapping("/mq/headers01")
-    @ResponseBody
-    public void mqH01(){
-        mqSender.sendH01("Hello,Headers01");
-    }
-    @RequestMapping("/mq/headers02")
-    @ResponseBody
-    public void mqH02(){
-        mqSender.sendH02("Hello,Headers02");
-    }
-
-
-
+    ///**
+    // * @description: 测试发送RabbitMQ消息
+    // *
+    // * @param:
+    // * @return:
+    // */
+    //@RequestMapping("/mq")
+    //@ResponseBody
+    //public void mq(){
+    //    mqSender.sendF("Hello");
+    //}
+    //
+    //@RequestMapping("/mq/fanout")
+    //@ResponseBody
+    //public void mqF(){
+    //    mqSender.sendF("Hello");
+    //}
+    //
+    //@RequestMapping("/mq/direct01")
+    //@ResponseBody
+    //public void mqD01(){
+    //    mqSender.sendD01("Hello,Red");
+    //}
+    //
+    //@RequestMapping("/mq/direct02")
+    //@ResponseBody
+    //public void mqD02(){
+    //    mqSender.sendD02("Hello,Green");
+    //}
+    //
+    //@RequestMapping("/mq/topic01")
+    //@ResponseBody
+    //public void mqT01(){
+    //    mqSender.sendT01("Hello,Red");
+    //}
+    //@RequestMapping("/mq/topic02")
+    //@ResponseBody
+    //public void mqT02(){
+    //    mqSender.sendT02("Hello,Green");
+    //}
+    //
+    //@RequestMapping("/mq/headers01")
+    //@ResponseBody
+    //public void mqH01(){
+    //    mqSender.sendH01("Hello,Headers01");
+    //}
+    //@RequestMapping("/mq/headers02")
+    //@ResponseBody
+    //public void mqH02(){
+    //    mqSender.sendH02("Hello,Headers02");
+    //}
 }

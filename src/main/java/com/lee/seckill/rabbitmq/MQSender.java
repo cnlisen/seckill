@@ -19,48 +19,58 @@ public class MQSender {
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
-
-    public void sendF(Object msg){
-        log.info("发送消息：" + msg);
-        rabbitTemplate.convertAndSend("fanoutExchange", "", msg);
+    /**
+     * @description: 发送秒杀信息
+     *
+     * @param:
+     * @return:
+     */
+    public void sendSeckillMessage(String message){
+        //log.info("发送消息" + message);
+        rabbitTemplate.convertAndSend("seckillExchange", "seckill.message", message);
     }
 
-    public void sendD01(Object msg){
-        log.info("发送red消息：" + msg);
-        rabbitTemplate.convertAndSend("directExchange", "queue.red", msg);
-    }
-
-    public void sendD02(Object msg){
-        log.info("发送green消息：" + msg);
-        rabbitTemplate.convertAndSend("directExchange", "queue.green", msg);
-    }
-
-
-    public void sendT01(Object msg){
-        log.info("发送消息(QUEUE01接收)：" + msg);
-        rabbitTemplate.convertAndSend("topicExchange", "queue.red.message", msg);
-    }
-
-    public void sendT02(Object msg){
-        log.info("发送消息(两个queue接收)：" + msg);
-        rabbitTemplate.convertAndSend("topicExchange", "message.queue.green.abc", msg);
-    }
-
-    public void sendH01(String msg){
-        log.info("发送消息Headers(QUEUE01接收)：" + msg);
-        MessageProperties properties = new MessageProperties();
-        properties.setHeader("color", "red");
-        properties.setHeader("speed", "normal");
-        Message message = new Message(msg.getBytes(), properties);
-        rabbitTemplate.convertAndSend("headersExchange", "", message);
-    }
-    public void sendH02(String msg){
-        log.info("发送消息Headers(两个QUEUE接收)：" + msg);
-        MessageProperties properties = new MessageProperties();
-        properties.setHeader("color", "red");
-        properties.setHeader("speed", "fast");
-        Message message = new Message(msg.getBytes(), properties);
-        rabbitTemplate.convertAndSend("headersExchange", "", message);
-    }
+    //public void sendF(Object msg){
+    //    log.info("发送消息：" + msg);
+    //    rabbitTemplate.convertAndSend("fanoutExchange", "", msg);
+    //}
+    //
+    //public void sendD01(Object msg){
+    //    log.info("发送red消息：" + msg);
+    //    rabbitTemplate.convertAndSend("directExchange", "queue.red", msg);
+    //}
+    //
+    //public void sendD02(Object msg){
+    //    log.info("发送green消息：" + msg);
+    //    rabbitTemplate.convertAndSend("directExchange", "queue.green", msg);
+    //}
+    //
+    //
+    //public void sendT01(Object msg){
+    //    log.info("发送消息(QUEUE01接收)：" + msg);
+    //    rabbitTemplate.convertAndSend("topicExchange", "queue.red.message", msg);
+    //}
+    //
+    //public void sendT02(Object msg){
+    //    log.info("发送消息(两个queue接收)：" + msg);
+    //    rabbitTemplate.convertAndSend("topicExchange", "message.queue.green.abc", msg);
+    //}
+    //
+    //public void sendH01(String msg){
+    //    log.info("发送消息Headers(QUEUE01接收)：" + msg);
+    //    MessageProperties properties = new MessageProperties();
+    //    properties.setHeader("color", "red");
+    //    properties.setHeader("speed", "normal");
+    //    Message message = new Message(msg.getBytes(), properties);
+    //    rabbitTemplate.convertAndSend("headersExchange", "", message);
+    //}
+    //public void sendH02(String msg){
+    //    log.info("发送消息Headers(两个QUEUE接收)：" + msg);
+    //    MessageProperties properties = new MessageProperties();
+    //    properties.setHeader("color", "red");
+    //    properties.setHeader("speed", "fast");
+    //    Message message = new Message(msg.getBytes(), properties);
+    //    rabbitTemplate.convertAndSend("headersExchange", "", message);
+    //}
 
 }

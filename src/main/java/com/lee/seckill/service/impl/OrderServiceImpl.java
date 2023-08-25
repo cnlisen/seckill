@@ -18,6 +18,7 @@ import com.lee.seckill.vo.OrderDetailVo;
 import com.lee.seckill.vo.RespBeanEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,6 +57,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     @Transactional
     @Override
     public Order seckill(User user, GoodsVo goods) {
+        ValueOperations valueOperations = redisTemplate.opsForValue();
         SeckillGoods seckillGoods = seckillGoodsService.getOne(new QueryWrapper<SeckillGoods>().eq("goods_id", goods.getId()));
         // 秒杀商品库存 减1
         seckillGoods.setStockCount(seckillGoods.getStockCount()-1);
@@ -66,9 +68,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         boolean seckillGoodsResult = seckillGoodsService.update(new UpdateWrapper<SeckillGoods>().setSql("stock_count=stock_count-1")
                         .eq("goods_id", goods.getId())
                         .gt("stock_count", 0));
-        if(!seckillGoodsResult){
+        //if(!seckillGoodsResult){
+        //    return null;
+        //}
+
+        // 判断是否还有库存
+        if(seckillGoods.getStockCount() < 1){
+            valueOperations.set("isStockEmpty"+goods.getId(), "0");
             return null;
         }
+
 
         // 生成正常订单
         Order order = new Order();
@@ -90,7 +99,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         seckillOrder.setGoodsId(goods.getId());
         seckillOrderService.save(seckillOrder);
         // 将用户抢购商品的订单写入Redis中，减少访问数据库的次数，从而加快访问速度。
-        redisTemplate.opsForValue().set("order:" + user.getId() + ":" + goods.getId(), seckillOrder);
+        valueOperations.set("order:" + user.getId() + ":" + goods.getId(), seckillOrder);
         return order;
     }
     /**
