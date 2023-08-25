@@ -19,6 +19,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
@@ -26,10 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @description: 秒杀相关
@@ -48,6 +46,8 @@ public class SecKillController implements InitializingBean {
     private RedisTemplate redisTemplate;
     @Autowired
     private MQSender mqSender;
+    @Autowired
+    private RedisScript<Long> redisScript;
 
     private Map<Long, Boolean> EmptyStockMap = new HashMap<>();
 
@@ -59,7 +59,7 @@ public class SecKillController implements InitializingBean {
      *
      * MacM1 优化前QPS : 1802
      * Linux 优化前QPS :
-     *
+     * MacM1 优化前QPS : 1623
      *
      * @param:
      * @return:
@@ -118,8 +118,11 @@ public class SecKillController implements InitializingBean {
             return RespBean.error(RespBeanEnum.EMPTY_STOCK);
         }
 
-        // Redis预减库存
-        Long stock = valueOperations.decrement("seckillGoods:"+goodsId); //decrement是原子性操作
+        // Redis预减库存(使用Lua脚本进行分布式锁原子化操作预减库存)
+        // Long stock = valueOperations.decrement("seckillGoods:"+goodsId); //decrement是原子性操作
+        Long stock = (Long) redisTemplate.execute(redisScript,
+                Collections.singletonList("seckillGoods:"+goodsId),
+                Collections.EMPTY_LIST);
         if(stock < 0){
             // 内存标记
             EmptyStockMap.put(goodsId, true);
