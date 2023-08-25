@@ -4,5 +4,10 @@
       "name": "web.resources.static-locations",
       "type": "java.lang.String",
       "description": "Description for web.resources.static-locations."
-  }
-] }
+    },
+    {
+      "name": "spring.data.rabbitmq.virtual-host",
+      "type": "java.lang.String",
+      "description": "Description for spring.data.rabbitmq.virtual-host."
+    }
+  ] }

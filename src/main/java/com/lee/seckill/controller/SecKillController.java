@@ -12,6 +12,7 @@ import com.lee.seckill.vo.GoodsVo;
 import com.lee.seckill.vo.RespBean;
 import com.lee.seckill.vo.RespBeanEnum;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,12 +32,18 @@ public class SecKillController {
     private ISeckillOrderService seckillOrderService;
     @Autowired
     private IOrderService orderService;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * @description: 秒杀商品操作
      *
      * MacM1 优化前QPS : 1874
      * Linux 优化前QPS : 274
+     *
+     * MacM1 优化前QPS : 1802
+     * Linux 优化前QPS :
+     *
      *
      * @param:
      * @return:
@@ -86,15 +93,16 @@ public class SecKillController {
 
         // 判断秒杀商品的库存
         if(goods.getStockCount() <= 0){
-            model.addAttribute("errmsg", RespBeanEnum.EMPTY_STOCK.getMessage());
             return RespBean.error(RespBeanEnum.EMPTY_STOCK);
         }
 
         // 根据 user_id 和 goods_id 获取相应的数据库对象（ MyBatis Plus 框架封装方法 ）
-        SeckillOrder seckillOrder = seckillOrderService.getOne(new QueryWrapper<SeckillOrder>().eq("user_id", user.getId()).eq("goods_id", goodsId));
+        // SeckillOrder seckillOrder = seckillOrderService.getOne(new QueryWrapper<SeckillOrder>().eq("user_id", user.getId()).eq("goods_id", goodsId));
+        // 使用Redis实现上述判重复抢购方法（目的：加快访问速度）
+        SeckillOrder seckillOrder = (SeckillOrder) redisTemplate.opsForValue().get("order:" + user.getId() + ":" + goods.getId());
+
         // 如果秒杀订单数据库中检索出相应的数据
         if(seckillOrder != null){
-            model.addAttribute("errmsg", RespBeanEnum.REPEATE_ERROR.getMessage());
             return RespBean.error(RespBeanEnum.REPEATE_ERROR);
         }
 

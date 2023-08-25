@@ -1,6 +1,5 @@
 package com.lee.seckill.utils;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lee.seckill.pojo.User;
 import com.lee.seckill.vo.RespBean;
