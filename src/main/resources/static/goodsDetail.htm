@@ -94,13 +94,16 @@
 
     // 获取生成的秒杀地址
     function getSeckillPath(){
+        // 获取id为goodsId的隐藏输入框的值
         var goodsId = $("#goodsId").val();
+        var captcha = $("#captcha").val();
         g_showLoading();
         $.ajax({
             url:"/seckill/path",
             type:"GET",
             data:{
-                goodsId:goodsId
+                goodsId:goodsId,
+                captcha:captcha
             },
             success:function (data){
                 if(data.code==200){
@@ -108,7 +111,7 @@
                     doSeckill(path);
                 }
                 else{
-                    layer.msg(data.msg);
+                    layer.msg(data.message);
                 }
             },
             error:function (){
@@ -190,6 +193,7 @@
             type : "GET",
             success:function (data){
                 if(data.code == 200){
+                    // 为HTML页面的个别element赋值
                     render(data.obj);
                 }
                 else{
@@ -201,7 +205,7 @@
             }
         });
     }
-
+    // 为HTML页面的个别element赋值
     function render(detail){
         var user = detail.user;
         var goods = detail.goodsVo;
@@ -227,7 +231,8 @@
         if(remainSeconds > 0){
             $("#buyButton").attr("disabled", true);
             $("#secKillTip").html("秒杀倒计时:" + remainSeconds + "秒");
-            // 自动刷新倒计时实现
+
+            // 倒计时自动刷新实现（使用回调函数）
             timeout = setTimeout(function(){
                 // $("#countDown").text(remainSeconds - 1);
                 $("#remainSeconds").val(remainSeconds - 1);

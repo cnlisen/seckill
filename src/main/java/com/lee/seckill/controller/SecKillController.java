@@ -203,14 +203,27 @@ public class SecKillController implements InitializingBean {
      */
     @RequestMapping("/path")
     @ResponseBody
-    public RespBean getPath(User user, Long goodsId){
+    public RespBean getPath(User user, Long goodsId, String captcha){
         if(user==null){
             return RespBean.error(RespBeanEnum.SESSION_ERROR);
         }
+
+        // 验证码校验（用户输入的与生成时存入Redis的进行一致性校验）
+        boolean check = orderService.checkCaptcha(user,goodsId,captcha);
+        if(!check){
+            return RespBean.error(RespBeanEnum.ERROR_CAPTCHA);
+        }
+
         String str = orderService.createPath(user, goodsId);
         return RespBean.success(str);
     }
 
+    /**
+     * @description: 获取验证码图片流
+     *
+     * @param:
+     * @return:
+     */
     @RequestMapping(value = "/captcha",method = RequestMethod.GET)
     public void verifyCode(User user, Long goodsId, HttpServletResponse response){
         if(user==null || goodsId<0){

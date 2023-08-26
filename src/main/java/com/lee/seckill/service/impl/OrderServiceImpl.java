@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.util.StringUtils;
 
 import java.util.Date;
+import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -81,7 +82,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             valueOperations.set("isStockEmpty"+goods.getId(), "0");
             return null;
         }
-
 
         // 生成正常订单
         Order order = new Order();
@@ -151,5 +151,20 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         }
         String redisPath = (String) redisTemplate.opsForValue().get("seckillPath:"+user.getId()+":"+goodsId);
         return path.equals(redisPath);
+    }
+
+    /**
+     * @description: 验证码校验
+     *
+     * @param:
+     * @return:
+     */
+    @Override
+    public boolean checkCaptcha(User user, Long goodsId, String captcha) {
+        if(StringUtils.isEmpty(captcha) || user==null || goodsId<0){
+            return false;
+        }
+        String redisCaptcha = (String) redisTemplate.opsForValue().get("captcha:" + user.getId() + ":" + goodsId);
+        return captcha.equals(redisCaptcha);
     }
 }
