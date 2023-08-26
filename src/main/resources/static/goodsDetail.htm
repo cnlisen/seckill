@@ -35,19 +35,32 @@
             <td id="startTime"></td>
             <td>
                 <input type="hidden" id="remainSeconds"/>
-<!--                <span th:if="${secKillStatus eq 0}">秒杀倒计时：<span id="countDown" th:text="${remainSeconds}"></span>秒</span>-->
-<!--                <span th:if="${secKillStatus eq 1}">秒杀进行中</span>-->
-<!--                <span th:if="${secKillStatus eq 2}">秒杀已结束</span>-->
+                <!--<span th:if="${secKillStatus eq 0}">秒杀倒计时：<span id="countDown" th:text="${remainSeconds}"></span>秒</span>-->
+                <!--<span th:if="${secKillStatus eq 1}">秒杀进行中</span>-->
+                <!--<span th:if="${secKillStatus eq 2}">秒杀已结束</span>-->
                 <span id="secKillTip"></span>
             </td>
 
             <td>
-<!--                <form id="seckillForm" method="post" action="/seckill/doSeckill">-->
-<!--                    <button class="btn btn-primary btn-block" type="submit" id="buyButton">立即秒杀</button>-->
-<!--                    <input type="hidden" name="goodsId" id="goosId"/>-->
-<!--                </form>-->
-                <button class="btn btn-primary btn-block" type="button" id="buyButton" onclick="getSeckillPath()">立即秒杀</button>
-                <input type="hidden" name="goodsId" id="goodsId">
+                <!--<form id="seckillForm" method="post" action="/seckill/doSeckill">-->
+                <!--    <button class="btn btn-primary btn-block" type="submit" id="buyButton">立即秒杀</button>-->
+                <!--    <input type="hidden" name="goodsId" id="goosId"/>-->
+                <!--</form>-->
+                <div class="row">
+                    <div class="form-inline">
+                        <!--验证码图片-->
+                        <img id="captchaImg" width="130" height="32" onclick="refreshCaptcha()" style="display: none"/>
+
+                        <!--验证码输入框-->
+                        <input id="captcha" class="form-control" style="display: none">
+
+                        <!--秒杀按钮-->
+                        <button class="btn btn-primary" type="button" id="buyButton" onclick="getSeckillPath()">立即秒杀
+                            <input type="hidden" name="goodsId" id="goodsId">
+                        </button>
+
+                    </div>
+                </div>
             </td>
 
         </tr>
@@ -72,6 +85,12 @@
         getDetails();
 
     });
+
+    // 刷新验证码
+    function refreshCaptcha(){
+        // 访问接口 获取 验证码图片流（后面加的参数用于校验，不用于生成）
+        $("#captchaImg").attr("src", "/seckill/captcha?goodsId="+$("#goodsId").val()+"&time="+new Date());
+    }
 
     // 获取生成的秒杀地址
     function getSeckillPath(){
@@ -208,6 +227,7 @@
         if(remainSeconds > 0){
             $("#buyButton").attr("disabled", true);
             $("#secKillTip").html("秒杀倒计时:" + remainSeconds + "秒");
+            // 自动刷新倒计时实现
             timeout = setTimeout(function(){
                 // $("#countDown").text(remainSeconds - 1);
                 $("#remainSeconds").val(remainSeconds - 1);
@@ -221,12 +241,20 @@
                 clearTimeout(timeout);
             }
             $("#secKillTip").html("秒杀进行中");
+            $("#captchaImg").attr("src", "/seckill/captcha?goodsId="+$("#goodsId").val()+"&time="+new Date());
 
+            // 秒杀开始后自动展示验证码
+            $("#captchaImg").show();
+            $("#captcha").show();
         }
         // 秒杀已经结束
         else{
             $("#buyButton").attr("disabled", true);
             $("#secKillTip").html("秒杀已经结束");
+
+            // 秒杀结束后自动关闭验证码
+            $("#captchaImg").hide();
+            $("#captcha").hide();
         }
     }
 </script>

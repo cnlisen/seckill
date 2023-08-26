@@ -1,10 +1,8 @@
 package com.lee.seckill.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.lee.seckill.pojo.Order;
-import com.lee.seckill.pojo.SeckillMessage;
-import com.lee.seckill.pojo.SeckillOrder;
-import com.lee.seckill.pojo.User;
+import com.lee.seckill.exception.GlobalException;
+import com.lee.seckill.pojo.*;
 import com.lee.seckill.rabbitmq.MQSender;
 import com.lee.seckill.service.IGoodsService;
 import com.lee.seckill.service.IOrderService;
@@ -15,6 +13,10 @@ import com.lee.seckill.vo.GoodsVo;
 import com.lee.seckill.vo.RespBean;
 import com.lee.seckill.vo.RespBeanEnum;
 import com.sun.tools.jconsole.JConsoleContext;
+import com.wf.captcha.ArithmeticCaptcha;
+import com.wf.captcha.SpecCaptcha;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -28,11 +30,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @description: 秒杀相关
  */
+@Slf4j
 @Controller
 @RequestMapping("/seckill")
 public class SecKillController implements InitializingBean {
@@ -204,6 +209,31 @@ public class SecKillController implements InitializingBean {
         }
         String str = orderService.createPath(user, goodsId);
         return RespBean.success(str);
+    }
+
+    @RequestMapping(value = "/captcha",method = RequestMethod.GET)
+    public void verifyCode(User user, Long goodsId, HttpServletResponse response){
+        if(user==null || goodsId<0){
+            throw new GlobalException(RespBeanEnum.REQUEST_ILLEGAL);
+        }
+
+        response.setContentType("image/jpg");
+        response.setHeader("Pragma", "No-cache");
+        response.setHeader("Cache-Control", "no-cache");
+        response.setDateHeader("Expires", 0);
+
+        // 生成验证码
+        SpecCaptcha specCaptcha = new SpecCaptcha(130, 32, 3);
+
+        // 将验证码的实际结果存入Redis（用于后期与 用户输入的验证码结果 进行 一致性校验）
+        redisTemplate.opsForValue().set("captcha:"+user.getId()+":"+goodsId, specCaptcha.text(), 300, TimeUnit.SECONDS);
+
+        // 输入图片流
+        try {
+            specCaptcha.out(response.getOutputStream());
+        } catch (IOException e) {
+            log.error("验证码生成失败", e.getMessage());
+        }
     }
 
     /**
