@@ -31,4 +31,8 @@ public interface IOrderService extends IService<Order> {
      * @return:
      */
     OrderDetailVo detail(Long orderId);
+
+    String createPath(User user, Long goodsId);
+
+    boolean checkPath(User user, Long goodsId, String path);
 }

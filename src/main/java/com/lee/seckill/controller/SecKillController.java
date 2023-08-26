@@ -23,6 +23,7 @@ import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -97,14 +98,21 @@ public class SecKillController implements InitializingBean {
 
 
 
-    @RequestMapping(value = "/doSeckill", method = RequestMethod.POST)
+    @RequestMapping(value = "/{path}/doSeckill", method = RequestMethod.POST)
     @ResponseBody
-    public RespBean doSecKill(Model model, User user, Long goodsId){
+    public RespBean doSecKill(@PathVariable String path, User user, Long goodsId){
         if(user == null){
             return RespBean.error(RespBeanEnum.SESSION_ERROR);
         }
 
         ValueOperations valueOperations = redisTemplate.opsForValue();
+
+        // 根据 用户id和商品id 与 redis中生成的path 进行一致性比较
+        boolean check = orderService.checkPath(user, goodsId, path);
+        if (!check){
+            return RespBean.error(RespBeanEnum.REQUEST_ILLEGAL);
+        }
+
 
         // 使用Redis实现判重复抢购方法（目的：加快访问速度）
         SeckillOrder seckillOrder =
@@ -180,6 +188,22 @@ public class SecKillController implements InitializingBean {
         Long orderId = seckillOrderService.getResult(user, goodsId);
         return RespBean.success(orderId);
 
+    }
+
+    /**
+     * @description: 获取秒杀地址
+     *
+     * @param:
+     * @return:
+     */
+    @RequestMapping("/path")
+    @ResponseBody
+    public RespBean getPath(User user, Long goodsId){
+        if(user==null){
+            return RespBean.error(RespBeanEnum.SESSION_ERROR);
+        }
+        String str = orderService.createPath(user, goodsId);
+        return RespBean.success(str);
     }
 
     /**
